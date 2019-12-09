@@ -41,7 +41,7 @@ You must provide the full command string as an argument to `ExAwsCredentialProce
 For example:
 
 ```elixir
-{ExAwsCredentialProcess, credential_process_cmd()}
+{ExAwsCredentialProcess, %{credential_process_cmd: credential_process_cmd()}}
 ```
 
 You can get that command from an environment variable or wherever else you like.
@@ -72,8 +72,19 @@ Note that your command must return JSON which matches [Amazon's specification](h
 
 ## Refresh Strategy
 
-Currently, we only refresh credentials when we notice that the cached credentials are expired and we are either about to make a request or have just made a request and seen that it failed authentication.
-In both cases, we ensure that we don't fire off multiple `credential_process` commands concurrently.
+When starting `ExAwsCredentialProcess`, you may provide a refresh strategy in the form of a module that implements the `ExAwsCredentialProcess.Refresh` behaviour.
+It must have a `refresh?/3` function, which will receive the credential expiration datetime, the current datetime, and how many times the request has retried, and must return a boolean.
+
+The default strategy is to refresh only after the credentials are expired.
+You might want to refresh (eg) about 30 minutes before expiration, but not during a certain time window, and always adding jitter among instances.
+Pass your own strategy like this:
+
+```elixir
+{ExAwsCredentialProcess, %{credential_process_cmd: credential_process_cmd(), refresh_strategy: MyStrategy}}
+```
+
+The refresh strategy is checked when we are about to make a request or have just made a request and seen that it failed authentication.
+We ensure that we don't fire off multiple `credential_process` commands concurrently.
 
 We currently do not proactively refresh credentials before the expiration arrives.
 The reason is that the `credential_process` this library was initially developed to work with does not support getting new credentials before the old ones expire.
