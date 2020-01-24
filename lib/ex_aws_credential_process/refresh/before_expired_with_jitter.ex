@@ -1,6 +1,9 @@
 defmodule ExAwsCredentialProcess.Refresh.BeforeExpiredWithJitter do
   @moduledoc """
   Strategy for refreshing credentials before expiration, with jitter.
+  Refresh becomes more and more likely as the expiration approaches, such that
+  a request the moment before expiration will almost certainly trigger a
+  refresh.
   The jitter is so that in a busy system, multiple hosts don't all refresh
   at the same moment.
   """

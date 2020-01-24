@@ -1,6 +1,10 @@
 defmodule ExAwsCredentialProcess.Refresh.AfterExpired do
   @moduledoc """
-  Strategy for refreshing credentials only after they expire or a request fails
+  Strategy for refreshing credentials only after they expire or a request
+  fails.  In general, this is a bad idea, as it will probably mean that some
+  requests fail before a new token is obtained. But if a system does not
+  support refreshing tokens early, using this strategy will mean that you don't
+  make pointless refresh requests.
   """
   @behaviour ExAwsCredentialProcess.Refresh
   @impl true
