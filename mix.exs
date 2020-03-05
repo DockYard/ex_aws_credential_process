@@ -4,7 +4,7 @@ defmodule ExAwsCredentialProcess.MixProject do
   def project do
     [
       app: :ex_aws_credential_process,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
