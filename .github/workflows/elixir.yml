@@ -20,5 +20,9 @@ jobs:
         otp-version: 22.2
     - name: Install Dependencies
       run: mix deps.get
+    - name: Install goon
+      run: |
+        wget https://github.com/alco/goon/releases/download/v1.1.1/goon_linux_amd64.tar.gz
+        tar xvfz goon_linux_amd64.tar.gz
     - name: Run Tests
       run: mix test

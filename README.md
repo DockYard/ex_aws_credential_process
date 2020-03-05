@@ -29,6 +29,14 @@ def deps do
 end
 ```
 
+Install `goon`, which allows for capturing `stderr` if there is an error, for easier debugging.
+
+1. Go to https://github.com/alco/goon/releases
+2. Download the tarball for your system from the latest release.
+3. `tar xvfz goon*.tar.gz`
+4. Put it somewhere in your PATH (or into the directory that will become the current working directory of your application): `mv goon ...`
+5. `rm goon*.tar.gz`
+
 ## Configuration
 
 `ex_aws_credential_process` needs the following configuration.

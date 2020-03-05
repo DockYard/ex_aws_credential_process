@@ -4,7 +4,7 @@ defmodule ExAwsCredentialProcess.MixProject do
   def project do
     [
       app: :ex_aws_credential_process,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -28,8 +28,9 @@ defmodule ExAwsCredentialProcess.MixProject do
   defp deps do
     [
       {:ex_aws, "~> 2.0"},
+      {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:jason, ">= 1.1.2", only: [:dev, :test]},
-      {:ex_doc, "~> 0.16", only: [:dev, :test]}
+      {:porcelain, "~> 2.0"}
     ]
   end
 
@@ -37,7 +38,7 @@ defmodule ExAwsCredentialProcess.MixProject do
     [
       description:
         "Uses ex_aws to make requests to AWS, authenticated using cached credentials, which it refreshes as needed using the credential_process command you supply. ",
-      maintainers: ["Nathan Long"],
+      maintainers: ["Nathan Long", "Luke Imhoff"],
       licenses: ["MIT"],
       links: %{github: "https://github.com/DockYard/ex_aws_credential_process"}
     ]

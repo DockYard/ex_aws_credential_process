@@ -17,6 +17,17 @@ defmodule ExAwsCredentialProcess.CmdTest do
             ], ~U[2019-11-22 18:32:33.000Z]} = creds
   end
 
+  test "parses and returns valid data from the command even if it prints to stderr" do
+    creds = Cmd.fetch_new_credentials("test/support/successful_with_stderr.sh")
+
+    assert {:ok,
+            [
+              access_key_id: "some_access_key_id",
+              secret_access_key: "some_secret_access_key",
+              security_token: "some_session_token"
+            ], ~U[2019-11-22 18:32:33.000Z]} = creds
+  end
+
   test "returns an error when the command returns an invalid map" do
     {:error, err} = Cmd.fetch_new_credentials("test/support/invalid_map.sh")
 
@@ -30,7 +41,9 @@ defmodule ExAwsCredentialProcess.CmdTest do
   end
 
   test "returns an error when the command fails" do
-    {:error, err} = Cmd.fetch_new_credentials("test/support/failed.sh")
-    assert err == {:credential_process_error, :invalid_json, ""}
+    assert {:error,
+            {:credential_process_error, :non_zero_exit_status,
+             %{status: 1, err: "warning on stderr\n", out: "output on stdout\n"}}} =
+             Cmd.fetch_new_credentials("test/support/failed.sh")
   end
 end
