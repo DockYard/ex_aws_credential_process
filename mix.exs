@@ -28,8 +28,9 @@ defmodule ExAwsCredentialProcess.MixProject do
   defp deps do
     [
       {:ex_aws, "~> 2.0"},
+      {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:jason, ">= 1.1.2", only: [:dev, :test]},
-      {:ex_doc, "~> 0.16", only: [:dev, :test]}
+      {:porcelain, "~> 2.0"}
     ]
   end
 
@@ -37,7 +38,7 @@ defmodule ExAwsCredentialProcess.MixProject do
     [
       description:
         "Uses ex_aws to make requests to AWS, authenticated using cached credentials, which it refreshes as needed using the credential_process command you supply. ",
-      maintainers: ["Nathan Long"],
+      maintainers: ["Nathan Long", "Luke Imhoff"],
       licenses: ["MIT"],
       links: %{github: "https://github.com/DockYard/ex_aws_credential_process"}
     ]
