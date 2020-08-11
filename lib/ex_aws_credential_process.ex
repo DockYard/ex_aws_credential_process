@@ -64,28 +64,49 @@ defmodule ExAwsCredentialProcess do
   not need to call it unless you prefer to call `ExAws.request/1` yourself.
   """
   def fetch_current_credentials(retries \\ 0) do
-    case :ets.lookup(@table_name, :credentials) do
-      [{:credentials, creds, expiration, refresh_strategy}] ->
-        if refresh_strategy.refresh?(expiration, DateTime.utc_now(), retries) do
-          refresh_credentials()
-        else
-          {:ok, creds}
-        end
-
+    with {:ok, credentials, expiration, refresh_strategy} <- lookup_current_credentials(),
+         false <- refresh_strategy.refresh?(expiration, DateTime.utc_now(), retries) do
+      {:ok, credentials}
+    else
       # credentials not found; fetch them
-      _ ->
-        refresh_credentials()
+      _ -> refresh_credentials()
     end
   end
 
   def handle_call(:refresh_credentials, _from, state) do
-    case ExAwsCredentialProcess.Cmd.fetch_new_credentials(state.credential_process_cmd) do
+    with {:ok, credentials, expiration, _refresh_strategy} <- lookup_current_credentials(),
+         false <- expired?(expiration) do
+      {:reply, {:ok, credentials}, state}
+    else
+      _ -> fetch_new_credentials(state)
+    end
+  end
+
+  defp fetch_new_credentials(state) do
+    case cmd_process().fetch_new_credentials(state.credential_process_cmd) do
       {:ok, credentials, expiration} ->
         :ets.insert(@table_name, {:credentials, credentials, expiration, state.refresh_strategy})
         {:reply, {:ok, credentials}, state}
 
       {:error, error} ->
         {:reply, {:error, error}, state}
+    end
+  end
+
+  defp lookup_current_credentials do
+    case :ets.lookup(@table_name, :credentials) do
+      [{:credentials, creds, expiration, refresh_strategy}] ->
+        {:ok, creds, expiration, refresh_strategy}
+
+      _ ->
+        {:error, "Credentials not found"}
+    end
+  end
+
+  defp expired?(expiration) do
+    case DateTime.compare(DateTime.utc_now(), expiration) do
+      :gt -> true
+      _ -> false
     end
   end
 
@@ -123,4 +144,12 @@ defmodule ExAwsCredentialProcess do
   defp refresh_credentials() do
     GenServer.call(__MODULE__, :refresh_credentials)
   end
+
+  defp cmd_process,
+    do:
+      Application.get_env(
+        :ex_aws_credential_process,
+        :credential_process,
+        ExAwsCredentialProcess.Cmd.Impl
+      )
 end
