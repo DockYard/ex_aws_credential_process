@@ -4,9 +4,10 @@ defmodule ExAwsCredentialProcess.MixProject do
   def project do
     [
       app: :ex_aws_credential_process,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
       docs: [
@@ -24,12 +25,16 @@ defmodule ExAwsCredentialProcess.MixProject do
     ]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:ex_aws, "~> 2.0"},
       {:ex_doc, "~> 0.16", only: [:dev, :test]},
       {:jason, ">= 1.1.2", only: [:dev, :test]},
+      {:mox, "~> 0.5", only: :test},
       {:porcelain, "~> 2.0"}
     ]
   end
